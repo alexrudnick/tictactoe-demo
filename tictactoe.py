@@ -100,7 +100,7 @@ def main():
             board = newboard
 
     winner = board.winner()
-    print("\n**** CONLUSION!! ****")
+    print("\n**** CONCLUSION!! ****")
     board.printme()
     if winner:
         print("We have a winner!! Congratulations, Player {}\n".format(winner))
