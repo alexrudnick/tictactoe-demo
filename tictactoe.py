@@ -15,7 +15,7 @@ state. The game loop will check if somebody has won after each move.
 
 class BoardState:
     def __init__(self):
-        self.board = [" "] * 9
+        self.board = [str(i) for i in range(1, 10)]
 
     def winner(self):
         # there are only eight different ways to win -- if we were working with
@@ -48,7 +48,7 @@ class BoardState:
     def available_moves(self):
         # all the indices that have not yet been taken
         return [i+1 for i in range(9)
-                if self.board[i] == " "]
+                if self.board[i] not in "XO"]
         
     def make_move(self, player, position):
         """Returns either a new BoardState when given a valid move.
