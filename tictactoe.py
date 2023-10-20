@@ -13,6 +13,8 @@ So to play the game, we'll take turns making moves, and just return a new board
 state. The game loop will check if somebody has won after each move.
 """
 
+import random
+
 class BoardState:
     def __init__(self):
         self.board = [str(i) for i in range(1, 10)]
@@ -80,6 +82,9 @@ class BoardState:
 
 
 
+# player O is the AI and they're trying to maximize.
+# player X is the human and they're trying to minimize.
+
 def minmax_search(board):
     # return the move that optimizes the utility for player O
     possible_moves = board.available_moves()
@@ -87,55 +92,66 @@ def minmax_search(board):
     # for each move that's possible here
     # pick the move that maximizes my utility if the subsequent move maximizes
     # the utility for the opponent
+
+    # tuples of (score, dist, move)
+    score_dist_move_triples = []
+
     bestscore = float('-inf')
-    bestmove = None
+    bestdist = float('inf')
+
+    # This is very similar to the max_value function, below.
     for move in possible_moves:
         newboard = board.make_move("O", move)
-
-        ## The problem was that we were calling max_value here, rather than
-        ## min_value!
-        score = min_value(newboard)
-        if score > bestscore:
+        board_score, dist = min_value(newboard)
+        if ((board_score > bestscore) or
+            (board_score == bestscore and (dist < bestdist))):
+            bestscore = board_score
+            bestdist = dist + 1
             bestmove = move
-            bestscore = score
+    print("bestmove has score {}, it is {}".format(bestscore, bestmove))
     return bestmove
 
-# player O is the AI and they're trying to maximize
-# player X is the human and they're trying to minimize
-
+## these functions return (score, dist) tuples, where dist is the number of
+## steps into the future that the score occurs.
 def max_value(board):
     """find the maximal possible score, where O makes the next move"""
     if board.winner() == "O":
-        return 1
+        return (1, 0)
     elif board.winner() == "X":
-        return -1
+        return (-1, 0)
     elif not board.available_moves():
-        return 0
+        return (0, 0)
     bestscore = float('-inf')
+    bestdist = float('inf')
     possible_moves = board.available_moves()
     for move in possible_moves:
         newboard = board.make_move("O", move)
-        board_score = min_value(newboard)
-        if board_score > bestscore:
+        board_score, dist = min_value(newboard)
+        if ((board_score > bestscore) or
+            (board_score == bestscore and (dist < bestdist))):
             bestscore = board_score
-    return bestscore
+            bestdist = dist + 1
+    return (bestscore, bestdist)
 
 def min_value(board):
     """find the minimal possible score, where X makes the next move"""
     if board.winner() == "O":
-        return 1
+        return (1, 0)
     elif board.winner() == "X":
-        return -1
+        return (-1, 0)
     elif not board.available_moves():
-        return 0
+        return (0, 0)
     bestscore = float('inf')
+    bestdist = float('inf')
     possible_moves = board.available_moves()
     for move in possible_moves:
         newboard = board.make_move("X", move)
-        board_score = max_value(newboard)
-        if board_score < bestscore:
+        board_score, dist = max_value(newboard)
+        if ((board_score < bestscore) or
+            (board_score == bestscore and (dist < bestdist))):
             bestscore = board_score
-    return bestscore
+            bestdist = dist + 1
+    return (bestscore, bestdist)
             
 def main():
     board = BoardState()
